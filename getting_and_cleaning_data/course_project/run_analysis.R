@@ -93,6 +93,6 @@ tidyData <- allData %>%
     arrange(subject.id)
 
 # writing the tidy data to a csv file
-write.csv(tidyData, 'tidyData.txt', row.names = F)
+write.table(tidyData, 'tidyData.csv', row.names = F, sep = ',')
 print('Tidy data has been written to tidyData.csv in the current working directory')
 print(paste('Total elapsed time', as.character((proc.time() - start.time)[3]), 's'))
