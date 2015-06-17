@@ -47,6 +47,7 @@ The following checklist can help identify obstacles to achieving tidy data
 * simply source run_analysis.R
 * package required: dplyr
 ```
+> source('~/Documents/datasciencecoursera/getting_and_cleaning_data/course_project/run_analysis.R')
 Sample Script Output:
 [1] "Current Working Directory /Users/don/Documents/datasciencecoursera/getting_and_cleaning_data/course_project"
 [1] "Tidy data has been written to tidyData.csv in the current working directory"
