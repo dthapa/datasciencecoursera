@@ -72,11 +72,11 @@ nickname       Pumpkin Helmet
 ```
 
 ####Files:
-- cookbook.md  - contains details about the original dataset and the variables for the new tidy datasets
-- tidyData.csv - output of run_analysis.R which contains grouped summary of all columns by activity
-- run_analysis.R - main recipe used to produce the tidy datasets from the source
-- README.md - this file
-- 
+- cookbook.md  contains details about the original dataset and the variables for the new tidy datasets
+- tidyData.csv  output of run_analysis.R which contains grouped summary of all columns by activity
+- run_analysis.R  main recipe used to produce the tidy datasets from the source
+- README.md  this file
+
 ####Notes:
 Although this exercise particularly didn't involve melting and dcasting, the swirl excerise
 using plyr, dplyr, tidyr packages was really helpful in understanding those principles together with
