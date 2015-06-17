@@ -1,9 +1,10 @@
 ##Getting and Cleaning Data 
-###Course Project
+###Course Project - create tidy datasets from a freely available wearable computing study dataset
 
 This cookbook is an exercise in taking a raw dataset from messy
 to tidy according to the principles expressed in Getting and Cleanind Data
-course and from Hadley Wickham's paper.
+course and from Hadley Wickham's paper 
+http://vita.had.co.nz/papers/tidy-data.pdf
 
 Primarily, the philosophy includes
 * Each variable forms a column
@@ -18,11 +19,10 @@ The following checklist can help identify obstacles to achieving tidy data
 * A single observational unit is stored in multiple tables
 
 ####Dataset Info
-* Source FileURL : [https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip]
+* Source FileURL : https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip
 * FileName       : getdata-projectfiles-UCI HAR Dataset.zip
 * Description    : Human Activity Recognition Using Smartphones Data Set 
-* More Info      : [http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones]
-
+* More Info      : http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones
 
 ####Cookbook steps contained in **run_analysis.R**
 * The dataset is downloaded if not already present and then unzipped
@@ -41,18 +41,21 @@ The following checklist can help identify obstacles to achieving tidy data
 * At conclusion, a timer helps determine the total elapsed time for all activities performed
 
 ####How to Run
-* the only recipe needed to run is run_analysis.R given a strong internet connection (source file is ~ 62.6mb)
+* the only recipe needed to run is **run_analysis.R** given a strong internet connection (source file is ~ 62.6mb)
 * Unzipping file creates a directory ~ 285mb in size
 * Due to the large dataset, provision enough memory, cores before running
 * simply source run_analysis.R
 * package required: dplyr
-'''Sample Script Output:
+```
+Sample Script Output:
 [1] "Current Working Directory /Users/don/Documents/datasciencecoursera/getting_and_cleaning_data/course_project"
 [1] "Tidy data has been written to tidyData.csv in the current working directory"
 [1] "Total elapsed time 33.5829999999987 s"
-'''
-#####Environment Tested
-'''platform       x86_64-apple-darwin13.4.0   
+```
+
+####Environment Tested
+```
+platform       x86_64-apple-darwin13.4.0   
 arch           x86_64                      
 os             darwin13.4.0                
 system         x86_64, darwin13.4.0        
@@ -65,8 +68,15 @@ day            31
 svn rev        66913                       
 language       R                           
 version.string R version 3.1.2 (2014-10-31)
-nickname       Pumpkin Helmet''' 
+nickname       Pumpkin Helmet
+```
 
+####Files:
+- cookbook.md  - contains details about the original dataset and the variables for the new tidy datasets
+- tidyData.csv - output of run_analysis.R which contains grouped summary of all columns by activity
+- run_analysis.R - main recipe used to produce the tidy datasets from the source
+- README.md - this file
+- 
 ####Notes:
 Although this exercise particularly didn't involve melting and dcasting, the swirl excerise
 using plyr, dplyr, tidyr packages was really helpful in understanding those principles together with
