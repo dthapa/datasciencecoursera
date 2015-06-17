@@ -32,66 +32,71 @@ from the 561 original features and are listed below - these features concern mea
 In addition, subject.id and activity were later added to the dataset from other files, making a total of 59 features.
 The tidy data generated adheres to the tidy data requirements as expressed in README.md
 ```
-ID  FeatureDescription
-1	timedBodyAccelerationMean-X
-2	timedBodyAccelerationMean-Y
-3	timedBodyAccelerationMean-Z
-4	timedBodyAccelerationSTD-X
-5	timedBodyAccelerationSTD-Y
-6	timedBodyAccelerationSTD-Z
-7	timedGravityAccelerationMean-X
-8	timedGravityAccelerationMean-Y
-9	timedGravityAccelerationMean-Z
-10	timedGravityAccelerationSTD-X
-11	timedGravityAccelerationSTD-Y
-12	timedGravityAccelerationSTD-Z
-13	timedBodyAccelerationJerkSignalMean-X
-14	timedBodyAccelerationJerkSignalMean-Y
-15	timedBodyAccelerationJerkSignalMean-Z
-16	timedBodyAccelerationJerkSignalSTD-X
-17	timedBodyAccelerationJerkSignalSTD-Y
-18	timedBodyAccelerationJerkSignalSTD-Z
-19	timedBodyAngularVelocityMean-X
-20	timedBodyAngularVelocityMean-Y
-21	timedBodyAngularVelocityMean-Z
-22	timedBodyAngularVelocitySTD-X
-23	timedBodyAngularVelocitySTD-Y
-24	timedBodyAngularVelocitySTD-Z
-25	timedBodyAngularVelocityJerkSignalMean-X
-26	timedBodyAngularVelocityJerkSignalMean-Y
-27	timedBodyAngularVelocityJerkSignalMean-Z
-28	timedBodyAngularVelocityJerkSignalSTD-X
-29	timedBodyAngularVelocityJerkSignalSTD-Y
-30	timedBodyAngularVelocityJerkSignalSTD-Z
-31	timedBodyAccelerationMagnitudeMean
-32	timedGravityAccelerationMagnitudeMean
-33	timedBodyAccelerationJerkSignalMagnitudeMean
-34	timedBodyAngularVelocityMagnitudeMean
-35	timedBodyAngularVelocityJerkSignalMagnitudeMean
-36	freqBodyAccelerationMean-X
-37	freqBodyAccelerationMean-Y
-38	freqBodyAccelerationMean-Z
-39	freqBodyAccelerationSTD-X
-40	freqBodyAccelerationSTD-Y
-41	freqBodyAccelerationSTD-Z
-42	freqBodyAccelerationJerkSignalMean-X
-43	freqBodyAccelerationJerkSignalMean-Y
-44	freqBodyAccelerationJerkSignalMean-Z
-45	freqBodyAccelerationJerkSignalSTD-X
-46	freqBodyAccelerationJerkSignalSTD-Y
-47	freqBodyAccelerationJerkSignalSTD-Z
-48	freqBodyAngularVelocityMean-X
-49	freqBodyAngularVelocityMean-Y
-50	freqBodyAngularVelocityMean-Z
-51	freqBodyAngularVelocitySTD-X
-52	freqBodyAngularVelocitySTD-Y
-53	freqBodyAngularVelocitySTD-Z
-54	freqBodyAccelerationMagnitudeMean
-55	freqBodyBodyAccelerationJerkSignalMagnitudeMean
-56	freqBodyBodyAngularVelocityMagnitudeMean
-57	freqBodyBodyAngularVelocityJerkSignalMagnitudeMean
-58	subject.id
-59	activity
+ID	Original.Feature.Name	    Descriptive.Feature.Name
+--------------------------------------------------------------------------
+1	tBodyAcc-mean()-X	        timedBodyAccelerationMean-X
+2	tBodyAcc-mean()-Y	        timedBodyAccelerationMean-Y
+3	tBodyAcc-mean()-Z	        timedBodyAccelerationMean-Z
+4	tBodyAcc-std()-X	        timedBodyAccelerationSTD-X
+5	tBodyAcc-std()-Y	        timedBodyAccelerationSTD-Y
+6	tBodyAcc-std()-Z	        timedBodyAccelerationSTD-Z
+7	tGravityAcc-mean()-X	    timedGravityAccelerationMean-X
+8	tGravityAcc-mean()-Y	    timedGravityAccelerationMean-Y
+9	tGravityAcc-mean()-Z	    timedGravityAccelerationMean-Z
+10	tGravityAcc-std()-X	        timedGravityAccelerationSTD-X
+11	tGravityAcc-std()-Y	        timedGravityAccelerationSTD-Y
+12	tGravityAcc-std()-Z	        timedGravityAccelerationSTD-Z
+13	tBodyAccJerk-mean()-X	    timedBodyAccelerationJerkSignalMean-X
+14	tBodyAccJerk-mean()-Y	    timedBodyAccelerationJerkSignalMean-Y
+15	tBodyAccJerk-mean()-Z	    timedBodyAccelerationJerkSignalMean-Z
+16	tBodyAccJerk-std()-X	    timedBodyAccelerationJerkSignalSTD-X
+17	tBodyAccJerk-std()-Y	    timedBodyAccelerationJerkSignalSTD-Y
+18	tBodyAccJerk-std()-Z	    timedBodyAccelerationJerkSignalSTD-Z
+19	tBodyGyro-mean()-X	        timedBodyAngularVelocityMean-X
+20	tBodyGyro-mean()-Y	        timedBodyAngularVelocityMean-Y
+21	tBodyGyro-mean()-Z	        timedBodyAngularVelocityMean-Z
+22	tBodyGyro-std()-X	        timedBodyAngularVelocitySTD-X
+23	tBodyGyro-std()-Y	        timedBodyAngularVelocitySTD-Y
+24	tBodyGyro-std()-Z	        timedBodyAngularVelocitySTD-Z
+25	tBodyGyroJerk-mean()-X	    timedBodyAngularVelocityJerkSignalMean-X
+26	tBodyGyroJerk-mean()-Y	    timedBodyAngularVelocityJerkSignalMean-Y
+27	tBodyGyroJerk-mean()-Z	    timedBodyAngularVelocityJerkSignalMean-Z
+28	tBodyGyroJerk-std()-X	    timedBodyAngularVelocityJerkSignalSTD-X
+29	tBodyGyroJerk-std()-Y	    timedBodyAngularVelocityJerkSignalSTD-Y
+30	tBodyGyroJerk-std()-Z	    timedBodyAngularVelocityJerkSignalSTD-Z
+31	tBodyAccMag-mean()	        timedBodyAccelerationMagnitudeMean
+32	tGravityAccMag-mean()	    timedGravityAccelerationMagnitudeMean
+33	tBodyAccJerkMag-mean()	    timedBodyAccelerationJerkSignalMagnitudeMean
+34	tBodyGyroMag-mean()	        timedBodyAngularVelocityMagnitudeMean
+35	tBodyGyroJerkMag-mean()	    timedBodyAngularVelocityJerkSignalMagnitudeMean
+36	fBodyAcc-mean()-X	        freqBodyAccelerationMean-X
+37	fBodyAcc-mean()-Y	        freqBodyAccelerationMean-Y
+38	fBodyAcc-mean()-Z	        freqBodyAccelerationMean-Z
+39	fBodyAcc-std()-X	        freqBodyAccelerationSTD-X
+40	fBodyAcc-std()-Y	        freqBodyAccelerationSTD-Y
+41	fBodyAcc-std()-Z	        freqBodyAccelerationSTD-Z
+42	fBodyAccJerk-mean()-X	    freqBodyAccelerationJerkSignalMean-X
+43	fBodyAccJerk-mean()-Y	    freqBodyAccelerationJerkSignalMean-Y
+44	fBodyAccJerk-mean()-Z	    freqBodyAccelerationJerkSignalMean-Z
+45	fBodyAccJerk-std()-X	    freqBodyAccelerationJerkSignalSTD-X
+46	fBodyAccJerk-std()-Y	    freqBodyAccelerationJerkSignalSTD-Y
+47	fBodyAccJerk-std()-Z	    freqBodyAccelerationJerkSignalSTD-Z
+48	fBodyGyro-mean()-X	        freqBodyAngularVelocityMean-X
+49	fBodyGyro-mean()-Y	        freqBodyAngularVelocityMean-Y
+50	fBodyGyro-mean()-Z	        freqBodyAngularVelocityMean-Z
+51	fBodyGyro-std()-X	        freqBodyAngularVelocitySTD-X
+52	fBodyGyro-std()-Y	        freqBodyAngularVelocitySTD-Y
+53	fBodyGyro-std()-Z	        freqBodyAngularVelocitySTD-Z
+54	fBodyAccMag-mean()	        freqBodyAccelerationMagnitudeMean
+55	fBodyBodyAccJerkMag-mean()	freqBodyBodyAccelerationJerkSignalMagnitudeMean
+56	fBodyBodyGyroMag-mean()	    freqBodyBodyAngularVelocityMagnitudeMean
+57	fBodyBodyGyroJerkMag-mean()	freqBodyBodyAngularVelocityJerkSignalMagnitudeMean
+59		                        subject.id
+60		                        activity
+
+timed variables are measured in second and frequency in hertz
+subject.id represents a participant's id
+activity includes 6 activities: LAYING SITTING STANDING WALKING WALKING_DOWNSTAIRS WALKING_UPSTAIRS
 ```
 
 ###Second Summary Tidy Data
