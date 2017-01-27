@@ -1,0 +1,187 @@
+---
+title: "Qualitative Assessment of Weight Lifting Exercises"
+author: "Don Thapa"
+date: "1/25/2017"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Wearable technologies can sufficiently differentiate when a user is walking versus running versus climbing stairs among others.
+How about weight lifting exercises - how should we measure bicep curls - not just count but the quality of the curls? In this report,
+we investigate a dataset produced by one such study and attempt to qualitatively assess weight lifting exercises as performed by
+novices with and without guidance from an expert. Bad forms lead to not only inefficiencies but also possible injuries which can be exacerbated in elders. As such there are 5 such classes; in order of quality: A, B, C, D and E.
+The dataset includes accelerometer, gyroscope and magnetometer readings for each x, y, z axis for a belt, glove, arm-band and dumbbell - which make a total of 3 * 3 * 4 = 36 raw data points for every window of time when an exercise was performed. The main goal 
+is to predict these grades as accurately as possible - as we will find out, such attempt does trade off both parsimony of the models used as well as real world implementation of such solutions.
+
+## Dataset
+
+We have 19622 training data which will be split between 70% and 30% for training and cross-validation data respectively.
+For the feature selection, all raw sensor readings will be considered. Scaling has been performed from the get go, and will be
+performed for the 20 test data before prediction at the end.
+
+```{r results='hide', message=FALSE, warning=FALSE}
+library(caret)
+library(dplyr)
+pml_training <- read.csv('~/Documents/datasciencecoursera/practical_machine_learning/pml-training.csv')
+pml_testing <- read.csv('~/Documents/datasciencecoursera/practical_machine_learning/pml-testing.csv')
+set.seed(123)
+training <- select(pml_training, classe, accel_arm_x, accel_arm_y, accel_arm_z, accel_belt_x,
+                          accel_belt_y, accel_belt_z, accel_dumbbell_x, accel_dumbbell_y, 
+                          accel_dumbbell_z, accel_forearm_x, accel_forearm_y, accel_forearm_z,
+                          gyros_arm_x, gyros_arm_y, gyros_arm_z, gyros_belt_x, gyros_belt_z,
+                          gyros_belt_z, gyros_dumbbell_x, gyros_dumbbell_y, gyros_dumbbell_z, 
+                          gyros_forearm_x, gyros_forearm_y, gyros_forearm_z, magnet_arm_x,
+                          magnet_arm_y,magnet_arm_z,magnet_belt_x,magnet_belt_y, magnet_belt_z,
+                          magnet_dumbbell_x,magnet_dumbbell_y,magnet_dumbbell_z,magnet_forearm_x,
+                          magnet_forearm_y, magnet_forearm_z
+                   )
+training[, -1] <- scale(training[, -1])
+inTrain <- createDataPartition(training$classe, p = 0.7, list = FALSE)
+train <- training[inTrain, ]
+cv <- training[-inTrain, ]
+```
+
+An example of how the belt's Z axis varies when the user is performing the exercise very poorly (E).
+
+```{r echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+table(training$classe)
+qplot(accel_belt_z,col=classe,data = training,geom='density')
+```
+
+## Classification Models
+
+Next we will run various plausible algorithms against the dataset and measure their accuracies.
+
+```{r cache=TRUE, results='hide', message=FALSE, warning=FALSE}
+library(nnet)
+LRmodel <- multinom(classe ~ ., train)
+mean(train$classe == predict(LRmodel))
+mean(cv$classe == predict(LRmodel, cv)) 
+```
+
+```{r cache=TRUE, results='hide', message=FALSE, warning=FALSE}
+library(e1071)
+svmModel <- svm(classe ~ ., train, kernel = 'radial')
+mean(train$classe == predict(svmModel))
+mean(cv$classe == predict(svmModel, cv))
+```
+
+```{r cache=TRUE, results='hide', message=FALSE, warning=FALSE}
+library(rpart)
+rpart.ctrl <- rpart.control(minsplit = 50, minbucket = 20, cp = 0.01)
+CARTmodel <- rpart(classe ~ ., data = train, method = 'class', control = rpart.ctrl)
+```
+
+```{r cache=TRUE, results='hide', message=FALSE, warning=FALSE}
+ldaModel <- train(classe ~ ., data = train, method = 'lda')
+```
+
+```{r cache=TRUE, results='hide', message=FALSE, warning=FALSE}
+tr.Control <- trainControl(method = 'repeatedcv', repeats = 1, number = 10, allowParallel = TRUE)
+rfModel <- train(classe ~ ., data = train, method = 'rf', do.trace = 1, ntree = 50,
+                 trControl = tr.Control)
+```
+
+```{r cache=TRUE, results='hide', message=FALSE, warning=FALSE}
+tr.Control <- trainControl(method = 'repeatedcv', repeats = 1, number = 2, allowParallel = TRUE)
+gbmModel <- train(classe ~ ., data = train, method = 'gbm', trControl = tr.Control)
+```
+
+### Predictors combined
+
+Combining above predictors for a meta model with RandomForest.
+
+```{r cache=TRUE, results='hide', message=FALSE, warning=FALSE}
+newTrain <- data.frame(classe = train$classe, gbmPredict = predict(gbmModel),
+                       rfPredict = predict(rfModel),
+                       svmPredict = predict(svmModel),
+                       ldaPredict = predict(ldaModel),
+                       lrPredict = predict(LRmodel))
+rfModelMeta <- train(classe ~ ., data = newTrain, method = 'rf', do.trace = 1, ntree = 10,
+                     trControl = trainControl(method = 'repeatedcv', repeats = 1, 
+                                              number = 10, allowParallel = TRUE))
+
+newCV <- data.frame(classe = cv$classe, gbmPredict = predict(gbmModel, cv),
+                    rfPredict = predict(rfModel, cv),
+                    svmPredict = predict(svmModel, cv),
+                    ldaPredict = predict(ldaModel, cv),
+                    lrPredict = predict(LRmodel, cv))
+
+```
+
+## Performance
+
+```{r echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE}
+LRtrain <- mean(train$classe == predict(LRmodel))
+LRcv <- mean(cv$classe == predict(LRmodel, cv)) 
+
+SVMtrain <- mean(train$classe == predict(svmModel))
+SVMcv <- mean(cv$classe == predict(svmModel, cv))
+
+CARTtrain <- mean(train$classe == predict(CARTmodel, type = 'class'))
+CARTcv <- mean(cv$classe == predict(CARTmodel, cv, type = 'class')) 
+
+LDAtrain <- mean(train$classe == predict(ldaModel))
+LDAcv <- mean(cv$classe == predict(ldaModel, cv))
+
+RFtrain <- mean(train$classe == predict(rfModel, train))
+RFcv <- mean(cv$classe == predict(rfModel, cv))
+
+RFmetatrain <- mean(predict(rfModelMeta, newTrain) == newTrain$classe)
+RFmetacv <- mean(predict(rfModelMeta, newCV) == newCV$classe)
+
+accuracy <- data.frame(model = c('Logistic Regression', 'SVM', 'CART', 'lda', 'RandomForest', 'RandomForestMeta'),
+                       training_accuracy = c(LRtrain, SVMtrain, CARTtrain, LDAtrain, RFtrain, RFmetatrain),
+                       cv_accuracy = c(LRcv, SVMcv, CARTcv, LDAcv, RFcv, RFmetacv))
+```
+
+```{r echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE}
+accuracy
+ggplot(accuracy, aes(model, cv_accuracy)) + labs(y = 'cv accuracy') + geom_point()
+```
+
+This comparison shows that randomforest model performs the best with training accuracy being perfect and its cv accuracy at 98%. This particular model used cross validation with k = 10 and a ntree of just 50. Do note, the combined predictor model does perform slightly better on the cv set, however the extra computaton invovled doesn't make it worth it in this case. Also, SVM with the gaussian kernel put up solid numbers with the least time to learn among the best performing algorithms.
+
+```{r echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE}
+rfModel
+```
+
+CV classe vs Prediction; most missclassifications happen between neighboring grades.
+
+```{r echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE}
+table(cv$classe, predict(rfModel, cv))
+```
+
+## Test Prediction
+
+```{r cache=TRUE, message=FALSE, warning=FALSE}
+test <- dplyr::select(pml_testing, accel_arm_x, accel_arm_y, accel_arm_z, accel_belt_x,
+                          accel_belt_y, accel_belt_z, accel_dumbbell_x, accel_dumbbell_y, 
+                          accel_dumbbell_z, accel_forearm_x, accel_forearm_y, accel_forearm_z,
+                          gyros_arm_x, gyros_arm_y, gyros_arm_z, gyros_belt_x, gyros_belt_z,
+                          gyros_belt_z, gyros_dumbbell_x, gyros_dumbbell_y, gyros_dumbbell_z, gyros_forearm_x,
+                          gyros_forearm_y, gyros_forearm_z,
+                          magnet_arm_x,magnet_arm_y,magnet_arm_z,magnet_belt_x,magnet_belt_y,   
+                          magnet_belt_z,magnet_dumbbell_x,magnet_dumbbell_y,magnet_dumbbell_z,magnet_forearm_x,
+                          magnet_forearm_y, magnet_forearm_z)
+testSet <- scale(test)
+predict(rfModel, testSet)
+```
+
+## Conclusion
+
+The out-of-sample error can only be inferred as the test data didn't include the actual classes; however, the test accuracy can be around the cv accuracy (98%) in the happy case, but is most likely lower. Since, the model selected has a high variance, it will certainly do better with more training data. However, at that moment, some factor analysis like PCA will certainly be required to speed up learning. Also, as the authors of the original study on this matter concluded that despite getting a high classification accuracy (where data were spliced by time windows), the real implementaton actually used thresholds rather than such ensembling techniques. This was done primarily because of the need to provide fast feedback to users of such system where course correction would be made during the exercise and not after.
+
+#### References
+
+Ugulino, W.; Cardador, D.; Vega, K.; Velloso, E.; Milidiu, R.; Fuks, H. <b>Wearable Computing: Accelerometers' Data Classification of Body Postures and Movements</b>. Proceedings of 21st Brazilian Symposium on Artificial Intelligence. Advances in Artificial Intelligence - SBIA 2012. In: Lecture Notes in Computer Science. , pp. 52-61. Curitiba, PR: Springer Berlin / Heidelberg, 2012. ISBN 978-3-642-34458-9. DOI: 10.1007/978-3-642-34459-6_6.
+
+Read more: http://groupware.les.inf.puc-rio.br/har#sbia_paper_section#ixzz4WqudriM1
+
+
