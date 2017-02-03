@@ -1,0 +1,73 @@
+---
+title: "Earthquakes"
+author: "Don Thapa"
+date: "2/3/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, cache = TRUE)
+library(leaflet)
+library(dplyr)
+library(plotly)
+```
+
+### Leaflet Plot
+
+There is an even more interactive version of this report built with [ShinyR and found here](https://dont404.shinyapps.io/earthquake/).
+
+We are looking at a simple earthquake dataset that contains entries from 1900 to early 2017 for events with 6 or more magnitudes.  Exact query to fetch this data can be found [here from USGS](http://earthquake.usgs.gov/fdsnws/event/1/query.csv?starttime=1900-01-01%2000:00:00&endtime=2017-02-03%2023:59:59&minmagnitude=6&orderby=time). Zoom in/out and click on events.
+
+```{r}
+eq <- read.csv('earthquakes.csv')
+eq$year <- as.numeric(format(as.Date(eq$time), '%Y'))
+eq$popup <- paste(eq$mag, eq$place, eq$time, sep = "\n")
+eq$period <- cut(eq$year, breaks = c(1900, 1940, 1980, 2017), 
+               dig.lab = 10, include.lowest = T,
+               labels = c('1900 - 1940', '1940 - 1980', '1980 - 2017'))
+
+periodpal <- colorFactor(heat.colors(length(eq$mag)), eq$mag)
+
+leaflet(eq) %>% 
+  setView(lng = 81.092, lat = 29.598, zoom = 3) %>%
+  addTiles() %>%
+  addCircles(lng = ~longitude, lat = ~latitude, weight = ~mag,
+             radius = ~mag * 2500, popup = ~popup,
+             color = ~periodpal(mag), fillColor = 'blue') %>%
+  addLegend(position = 'bottomright',
+            pal = periodpal,
+            values = seq(min(eq$mag), max(eq$mag), by = 0.5),
+            opacity = 0.5)
+```
+
+### PlotLy
+
+Next, we chart bucket counts for special magnitude ranges over the same time period.
+
+```{r}
+eq$magBins <- cut(eq$mag, breaks = 3, dig.lab = 1, include.lowest = F)
+eq_grp <- group_by(eq, year, magBins) %>% 
+  summarise(magBinsCount = length(magBins))
+plot_ly(eq_grp, x = ~year, y = ~magBinsCount, 
+      type = 'scatter', 
+      mode = 'markers', 
+      color = ~magBins)
+```
+
+```{r}
+eq$period <- cut(eq$year, breaks = c(1900, 1940, 1980, 2017), 
+                       dig.lab = 10, include.lowest = T,
+                       labels = c('1900 - 1940', '1940 - 1980', '1980 - 2017'))
+t.test(filter(eq, period == '1900 - 1940' & magBins == '(6,7]')$mag, 
+     filter(eq, period == '1940 - 1980' & magBins == '(6,7]')$mag)
+
+t.test(filter(eq, period == '1940 - 1980' & magBins == '(6,7]')$mag, 
+     filter(eq, period == '1980 - 2017' & magBins == '(6,7]')$mag)
+```
+
+These t-tests back the visualization above and give statistical evidence to suggest earthquake activities in   the **(6,7]** magnitude range have been going up recently **(1980 - 2017)** compared to **pre 1940**; however  same isn't true when comparing with **(1940 - 1980)** data.  
+
+### Detour
+
+There is an even more interactive version of this report built with [ShinyR and found here](https://dont404.shinyapps.io/earthquake/).
+

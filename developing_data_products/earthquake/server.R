@@ -6,19 +6,35 @@ library(dplyr)
 shinyServer(function(input, output, session) {
 
   filteredData1 <- reactive({
+      eq <- read.csv('earthquakes.csv')
+      eq$year <- as.numeric(format(as.Date(eq$time), '%Y'))
+      eq$popup <- paste(eq$mag, eq$place, eq$time, sep = "\n")
+      periodpal <- colorFactor(heat.colors(length(eq$mag)), eq$mag)
       filter(eq, year == input$year)
   })
   
   filteredData2 <- reactive({
+      eq <- read.csv('earthquakes.csv')
+      eq$year <- as.numeric(format(as.Date(eq$time), '%Y'))
+      eq$popup <- paste(eq$mag, eq$place, eq$time, sep = "\n")
+      periodpal <- colorFactor(heat.colors(length(eq$mag)), eq$mag)
       filter(eq, year >= input$endyear[1] & year <= input$endyear[2])
   })
   
   filteredData3 <- reactive({
+      eq <- read.csv('earthquakes.csv')
+      eq$year <- as.numeric(format(as.Date(eq$time), '%Y'))
+      eq$popup <- paste(eq$mag, eq$place, eq$time, sep = "\n")
+      periodpal <- colorFactor(heat.colors(length(eq$mag)), eq$mag)
       filter(eq, year >= input$endyear[1] & year <= input$endyear[2]) %>%
           filter(mag >= input$mag[1] & mag <= input$mag[2])
   })
   
   observe({
+      eq <- read.csv('earthquakes.csv')
+      eq$year <- as.numeric(format(as.Date(eq$time), '%Y'))
+      eq$popup <- paste(eq$mag, eq$place, eq$time, sep = "\n")
+      periodpal <- colorFactor(heat.colors(length(eq$mag)), eq$mag)
       proxy <- leafletProxy('map', data = eq)
       proxy %>% clearControls()
       if (input$legend) {
@@ -31,11 +47,10 @@ shinyServer(function(input, output, session) {
   })
   
   observe({
-      periodpal <- colorFactor(heat.colors(length(eq$mag)), eq$mag)
       eq <- read.csv('earthquakes.csv')
       eq$year <- as.numeric(format(as.Date(eq$time), '%Y'))
       eq$popup <- paste(eq$mag, eq$place, eq$time, sep = "\n")
-      
+      periodpal <- colorFactor(heat.colors(length(eq$mag)), eq$mag)
       leafletProxy('map', data = filteredData3()) %>%
           clearShapes() %>%
           addTiles() %>%
@@ -45,14 +60,13 @@ shinyServer(function(input, output, session) {
   })
   
   observe({
-      periodpal <- colorFactor(heat.colors(length(eq$mag)), eq$mag)
       eq <- read.csv('earthquakes.csv')
       eq$year <- as.numeric(format(as.Date(eq$time), '%Y'))
       eq$popup <- paste(eq$mag, eq$place, eq$time, sep = "\n")
       eq$period <- cut(eq$year, breaks = c(1900, 1940, 1980, 2017), 
                        dig.lab = 10, include.lowest = T,
                        labels = c('1900 - 1940', '1940 - 1980', '1980 - 2017'))
-      
+      periodpal <- colorFactor(heat.colors(length(eq$mag)), eq$mag)
       leafletProxy('map', data = filteredData1()) %>%
           clearShapes() %>%
           addTiles() %>%
@@ -62,13 +76,13 @@ shinyServer(function(input, output, session) {
   })
 
   observe({
-      periodpal <- colorFactor(heat.colors(length(eq$mag)), eq$mag)
       eq <- read.csv('earthquakes.csv')
       eq$year <- as.numeric(format(as.Date(eq$time), '%Y'))
       eq$popup <- paste(eq$mag, eq$place, eq$time, sep = "\n")
       eq$period <- cut(eq$year, breaks = c(1900, 1940, 1980, 2017), 
                        dig.lab = 10, include.lowest = T,
                        labels = c('1900 - 1940', '1940 - 1980', '1980 - 2017'))
+      periodpal <- colorFactor(heat.colors(length(eq$mag)), eq$mag)
       
       leafletProxy('map', data = filteredData2()) %>%
           clearShapes() %>%
@@ -101,6 +115,9 @@ shinyServer(function(input, output, session) {
   })
   
   output$magChart <- renderPlotly({
+      eq <- read.csv('earthquakes.csv')
+      eq$year <- as.numeric(format(as.Date(eq$time), '%Y'))
+      eq$popup <- paste(eq$mag, eq$place, eq$time, sep = "\n")
       eq$magBins <- cut(eq$mag, breaks = 3, dig.lab = 1, include.lowest = T)
       eq_grp <- group_by(eq, year, magBins) %>% 
           summarise(magBinsCount = length(magBins))
