@@ -1,0 +1,95 @@
+Retention Prediction for Highly Reviewed Employees
+========================================================
+author: Don
+date: Feb 8, 2017
+autosize: true
+
+```{r set-options, echo=FALSE, cache=FALSE}
+options(width=800)
+```
+Introduction
+========================================================
+
+Why do highly reviewed employees leave?  
+This turnover has a big impact on businesses to say the least.  
+
+We have analysed one such HR dataset and produced an app that  
+gives precise prediction for the likelihood of a departure of an employee  
+the company has deemed valuable.
+
+<https://dont404.shinyapps.io/retention/>
+![RetentionApp](app.png)
+
+Comparing groups who stay vs leave
+========================================================
+key - overworked, more projects, underpaid, 3 - 5 years with the company and more.
+```{r echo = FALSE, results='hide', warning=FALSE, message=FALSE}
+library(dplyr)
+library(caret)
+library(ggplot2)
+library(plotly)
+library(reshape2)
+library(googleVis)
+
+set.seed(1234)
+hr <- read.csv('HR_comma_sep.csv')
+hr <- rename(hr, dept = sales)
+best_evaluated <- filter(hr, last_evaluation > 0.8)
+inTrain <- createDataPartition(best_evaluated$left, p = 0.7, list = FALSE)
+train <- best_evaluated[inTrain, ]
+test <- best_evaluated[-inTrain, ]
+
+temp <- train$salary
+train$salary <- as.numeric(train$salary)
+d <- melt(train, id.vars = c('dept', 'left'))
+g <- ggplot(d,aes(x = value, fill = factor(left))) + 
+    facet_wrap(~variable,scales = "free_x") + 
+    geom_histogram(bins = 10)
+htmlwidgets::saveWidget(as.widget(ggplotly(g)), file = "plotly.html")
+train$salary <- temp
+```
+<iframe src="plotly.html" style="position:absolute;height:100%;width:100%"></iframe>
+
+Prediction Model
+========================================================
+We filter out candiates with high evaluation in the last period >= 0.8  
+(on a 0 to 1 scale) and hence exclude that feature. AIC drops department too.
+```{r results = 'hide', warning=FALSE, message=FALSE}
+modelGLM <- step(glm(left ~ . -last_evaluation, data = train, family = binomial))
+```
+A unit change that increases the odds of leaving keeping everything else constant.  
+Showing top 3 predictors only.
+```{r echo = FALSE, warning=FALSE, message=FALSE}
+head(round(sort(exp(modelGLM$coefficients), decreasing = TRUE), 5), 3)
+```
+
+Results
+========================================================
+Here, the logistic model holds its own against a randomforest  
+model built using same features. Unlike, the rf model however,  
+the logistic model quantifies the effects of the predictors  
+on the actual odds of someone leaving as seen on the previous slide,  
+hence giving evaluators an insight on how to improve things.
+
+For this reason, the app is built around the Logistic regression model,  
+and rf model is provided as an extra validation to consider as well.
+
+```{r echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+tr.Control <- trainControl(method = 'repeatedcv', repeats = 1, number = 10, allowParallel = TRUE)
+modelRF <- train(left ~ satisfaction_level + number_project + average_montly_hours + 
+                     time_spend_company + Work_accident + promotion_last_5years + 
+                     salary, data = train, method = 'rf', ntree = 10,
+                 trControl = tr.Control)
+trainGLMError <- mean(as.numeric(predict(modelGLM, train, type = 'response') >= 0.5) == train$left)
+testGLMError <- mean(as.numeric(predict(modelGLM, test, type = 'response') >= 0.5) == test$left)
+
+trainRFError <- mean(train$left == as.numeric(predict(modelRF, train) >= 0.5))
+testRFError <- mean(test$left == as.numeric(predict(modelRF, test) >= 0.5))
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+data.frame(trainError = c(trainGLMError, trainRFError), 
+           testError = c(testGLMError, testRFError), 
+           row.names = c('Logistic Model', 'Randomforest'))
+```
+dataset: <https://www.kaggle.com/ludobenistant/hr-analytics>  
